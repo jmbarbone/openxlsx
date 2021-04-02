@@ -22,13 +22,11 @@ The openxlsx package uses global options to simplify formatting:
 }
  See the Formatting vignette for examples.
 
-
-
-
 Additional options
 
 \itemize{
 \item{\code{options("openxlsx.compressionLevel" = "9")}} ## set zip compression level, default is "1".
+\item{\code{options("openxlsx.excelApp")}: A path to the preferred Excel application to open workbooks with [openXL()] (for Linux only)}
 }
 }
 \seealso{

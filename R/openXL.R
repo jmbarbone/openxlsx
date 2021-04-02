@@ -11,7 +11,7 @@
 #' In Linux it searches (via \code{which}) for available xls/xlsx
 #' reader applications (unless \code{options('openxlsx.excelApp')}
 #' is set to the app bin path), and if it finds anything, sets
-#' \code{options('openxlsx.excelApp')} to the program choosen by
+#' \code{options('openxlsx.excelApp')} to the program chosen by
 #' the user via a menu (if many are present, otherwise it will
 #' set the only available). Currently searched for apps are
 #' Libreoffice/Openoffice (\code{soffice} bin), Gnumeric
@@ -32,43 +32,65 @@
 #' writeData(wb, "Cars", x, startCol = 2, startRow = 3, rowNames = TRUE)
 #' # openXL(wb)
 openXL <- function(file = NULL) {
-  od <- getOption("OutDec")
-  options("OutDec" = ".")
-  on.exit(expr = options("OutDec" = od), add = TRUE)
+  op <- options()
+  on.exit(options(op), add = TRUE)
+  options(OutDec = ".")
 
-  if (is.null(file)) stop("A file has to be specified.")
+  if (is.null(file)) {
+    stop("A file has to be specified.")
+  }
 
   ## workbook handling
-  if ("Workbook" %in% class(file)) {
+  if (is.Workbook(file)) {
     file <- file$saveWorkbook()
   }
 
-  if (!file.exists(file)) stop("Non existent file or wrong path.")
-
   ## execution should be in background in order to not block R
   ## interpreter
-  file <- normalizePath(file)
+  file <- normalizePath(file, mustWork = TRUE)
   userSystem <- Sys.info()["sysname"]
 
-
-  if ("Linux" == userSystem) {
-    if (is.null(app <- unlist(options("openxlsx.excelApp")))) {
+  switch(
+    userSystem,
+    Windows = shell.exec(file),
+    Darwin = system2("open", file, stderr = TRUE),
+    Linux = {
       app <- chooseExcelApp()
-    }
-    myCommand <- paste(app, file, "&", sep = " ")
-    system(command = myCommand)
-  } else if ("Windows" == userSystem) {
-    shell(shQuote(string = file), wait = FALSE)
-  } else if ("Darwin" == userSystem) {
-    myCommand <- paste0("open ", file)
-    system(command = myCommand)
-  } else {
-    warning("Operating system not handled.")
-  }
+      # attempt to run system2, if failure do not set application
+      local({
+        tryCatch(
+          system2(app, c(file, " &"), stderr = TRUE),
+          warning = function(e) {
+            warning(e$message)
+            app <<- NULL
+          }
+        )
+      })
+      # wil lbe set upon success
+      on.exit(options(openxlsx.excelApp = app), add = TRUE)
+    },
+    stop("Operating system ", userSystem, " not handled", call. = FALSE)
+  )
 }
 
-
+#' Choose excel app
+#' 
+#' Tries to find the appropriate excel app to use with openXL
+#'
+#' @description
+#' First the global option for openxlsx.excelApp is checked.  If this is null, 
+#'   an app is attempted to be found.  If the session is interactive and 
+#'   multiple apps are found, the user will have the opportunity to select the 
+#'   appropriate app; otherwise a warning is thrown and the first found will
+#'   be chosen.
+#' This does not set global options
 chooseExcelApp <- function() {
+  op <- getOption("openxlsx.excelApp")
+  
+  if (!is.null(op)) {
+    return(op)
+  }
+  
   m <- c(
     `Libreoffice/OpenOffice` = "soffice",
     `Calligra Sheets` = "calligrasheets",
@@ -77,30 +99,35 @@ chooseExcelApp <- function() {
 
   prog <- Sys.which(m)
   names(prog) <- names(m)
-  nApps <- length(availProg <- prog["" != prog])
+  availProg <- prog["" != prog]
+  nApps <- length(availProg)
 
-  if (0 == nApps) {
+  if (nApps == 0L) {
     stop(
       "No applications (detected) available.\n",
       "Set options('openxlsx.excelApp'), instead."
     )
-  } else if (1 == nApps) {
-    cat("Only", names(availProg), "found; I'll use it.\n")
-    unnprog <- unname(availProg)
-    options(openxlsx.excelApp = unnprog)
-    invisible(unnprog)
-  } else if (1 < nApps) {
-    if (!interactive()) {
-      stop(
+  }
+  
+  if (nApps == 1L) {
+    message("Only ", names(availProg), " found; I'll use it.")
+    return(unname(availProg))
+  }
+  
+  if (nApps > 1) {
+    if (interactive()) {
+      unnprog <- availProg[menu(names(availProg), title = "Excel Apps availables")]
+      message("Set options('openxlsx.excelApp') to skip this next time")
+    } else {
+      unnprog <- availProg[1L]
+      warning(
         "Cannot choose an Excel file opener non-interactively.\n",
-        "Set options('openxlsx.excelApp'), instead."
+        "Set options('openxlsx.excelApp'), instead.\n",
+        "Otherwise defaulting to first option: ", unnprog
       )
     }
-    res <- menu(names(availProg), title = "Excel Apps availables")
-    unnprog <- unname(availProg[res])
-    if (res > 0L) options(openxlsx.excelApp = unnprog)
-    invisible(unname(unnprog))
-  } else {
-    stop("Unexpected error.")
+    return(unname(unnprog))
   }
+  
+  stop("Unexpected error.")
 }
