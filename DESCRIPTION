@@ -18,7 +18,12 @@ Authors@R:
              role = "ctb"),
       person(given = "Joshua",
              family = "Sturm",
-             role = "ctb"))
+             role = "ctb"),
+      person(given   = "Jordan Mark",
+             family  = "Barbone",
+             role    = "ctb",
+             email   = "jmbarbone@gmail.com",
+             comment = c(orcid = "0000-0001-9788-3628"))
 Description: Simplifies the creation of Excel .xlsx files by
     providing a high level interface to writing, styling and editing
     worksheets. Through the use of 'Rcpp', read/write times are comparable
