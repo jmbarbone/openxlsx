@@ -99,7 +99,7 @@ IntegerVector build_cell_types_integer(CharacterVector classes, int n_rows){
 
   for(size_t i = 0; i < n_cols; i++){
     
-    if((classes[i] == "numeric") | (classes[i] == "integer") | (classes[i] == "raw") ){
+    if((classes[i] == "numeric") | (classes[i] == "integer") | (classes[i] == "raw") | (classes[i] == "openxlsx_mixed")){
       col_t[i] = 0; 
     }else if(classes[i] == "character"){
       col_t[i] = 1; 

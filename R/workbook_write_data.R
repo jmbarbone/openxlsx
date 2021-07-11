@@ -36,7 +36,8 @@ Workbook$methods(writeData = function(
   ## pull out NaN values
   nans <- unlist(lapply(1:nCols, function(i) {
     tmp <- df[[i]]
-    if (!"character" %in% class(tmp) & !"list" %in% class(tmp)) {
+    if (!"character" %in% class(tmp) & !"list" %in% class(tmp) & !inherits(tmp, "openxlsx_mixed")) {
+    # if (!"character" %in% class(tmp) & !"list" %in% class(tmp)) {
       v <- which(is.nan(tmp) | is.infinite(tmp))
       if (length(v) == 0) {
         return(v)
@@ -139,6 +140,16 @@ Workbook$methods(writeData = function(
   ## convert all numerics to character (this way preserves digits)
   if ("numeric" %in% colClasses) {
     for (i in which(sapply(colClasses, function(x) "numeric" %in% x))) {
+      class(df[[i]]) <- "character"
+    }
+  }
+  
+  ## convert the mixed type to character?
+  ## Currently only accepting Strings and Numbers
+  if ("openxlsx_mixed" %in% colClasses) {
+    # TODO change to vapply?
+    for (i in which(sapply(colClasses, function(x) "openxlsx_mixed" %in% x))) {
+      # df[[i]] <- as.character(df[[i]])
       class(df[[i]]) <- "character"
     }
   }
