@@ -116,17 +116,23 @@ Workbook$methods(writeData = function(
     }
   }
 
-  if (any(c("formula", "array_formula") %in% allColClasses)) {
+  if (any(c("formula", "array_formula", "workbookFormula", "workbookArrayFormula") %in% allColClasses)) {
     
-    frm <- "formula"
+    if (any(c("formula", "array_formula") %in% allColClasses)) {
+      warn_formula()
+    }
+    
+    # TODO deprecate use of `formula`
+    frm <- c("formula", "workbookFormula")
     cls <- "openxlsx_formula"
     
+    # TODO deprecate use of `array_formula`
     if ("array_formula" %in% allColClasses) {
-      frm <- "array_formula"
+      frm <- c("array_formula", "workbookArrayFormula")
       cls <- "openxlsx_array_formula"
     }
     
-    for (i in which(sapply(colClasses, function(x) frm %in% x))) {
+    for (i in which(sapply(colClasses, function(x) any(frm %in% x)))) {
       df[[i]] <- replaceIllegalCharacters(as.character(df[[i]]))
       class(df[[i]]) <- cls
     }

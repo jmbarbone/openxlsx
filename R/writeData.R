@@ -145,7 +145,7 @@
 #'   stringsAsFactors = FALSE
 #' )
 #'
-#' class(df$z) <- c(class(df$z), "formula")
+#' class(df$z) <- c(class(df$z), "workbookFormula")
 #'
 #' writeData(wb, sheet = "Formula", x = df)
 #'
@@ -239,9 +239,14 @@ writeData <- function(
   }
 
   ## special case - formula
-  if (inherits(x, "formula")) {
+  # These need to be a specific formula class, not the base `formula`.
+  # TODO deprecate `formula`
+  if (inherits(x, c("workbookFormula", "formula")) & !is.call(x)) {
+    if (inherits(x, "formula")) {
+      warn_formula()
+    }
     x <- data.frame("X" = x, stringsAsFactors = FALSE)
-    class(x[[1]]) <- ifelse(array, "array_formula", "formula")
+    class(x[[1]]) <- ifelse(array, "workbookArrayFormula", "workbookFormula")
     colNames <- FALSE
   }
 
@@ -281,9 +286,13 @@ writeData <- function(
   colClasss2 <- colClasses
   colClasss2[vapply(
     colClasses,
-    function(i) inherits(i, "formula") & inherits(i, "hyperlink"),
+    function(i) {
+      inherits(i, c("formula", "workbookFormula")) & 
+        inherits(i, "hyperlink") &
+        !is.call(i)
+    },
     NA
-  )] <- "formula"
+  )] <- "workbookFormula"
 
   if (is.numeric(sheet)) {
     sheetX <- wb$validateSheet(sheet)
@@ -473,7 +482,7 @@ writeData <- function(
 #' writeFormula(wb, 1, x = "A2 + B2", startCol = 10, startRow = 10)
 #'
 #'
-#' ## 2. - As a data.frame column with class "formula" using writeData
+#' ## 2. - As a data.frame column with class "workbookFormula" using writeData
 #'
 #' df <- data.frame(
 #'   x = 1:3,
@@ -483,8 +492,8 @@ writeData <- function(
 #'   stringsAsFactors = FALSE
 #' )
 #'
-#' class(df$z) <- c(class(df$z), "formula")
-#' class(df$z2) <- c(class(df$z2), "formula")
+#' class(df$z) <- c(class(df$z), "workbookFormula")
+#' class(df$z2) <- c(class(df$z2), "workbookFormula")
 #'
 #' addWorksheet(wb, "Sheet 2")
 #' writeData(wb, sheet = 2, x = df)
@@ -531,10 +540,10 @@ writeFormula <- function(
   }
 
   dfx <- data.frame("X" = x, stringsAsFactors = FALSE)
-  class(dfx$X) <- c("character", ifelse(array, "array_formula", "formula"))
+  class(dfx$X) <- c("character", ifelse(array, "workbookArrayFormula", "workbookFormula"))
 
   if (any(grepl("^(=|)HYPERLINK\\(", x, ignore.case = TRUE))) {
-    class(dfx$X) <- c("character", "formula", "hyperlink")
+    class(dfx$X) <- c("character", "workbookFormula", "hyperlink")
   }
 
   writeData(
