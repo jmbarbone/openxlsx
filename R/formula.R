@@ -6,7 +6,7 @@
 #' @param x A vector of values
 #' @param array Is this an array formula? (not yet implemented)
 #' @returns A vector with class `workbookFormula`
-#' @export
+#' @nomd
 workbook_formula <- function(x, array = FALSE) {
   # do we need class(x) or just c("workbookFormula", "character")?
   structure(x, class = c(class(x), "workbookFormula"), array = array)
