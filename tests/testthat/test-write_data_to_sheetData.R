@@ -253,7 +253,6 @@ test_that("write hyperlinks", {
   tmp <- openxlsx:::temp_xlsx()
   tmp_dir <- tempdir()
   
-  
   # create data
   channels <- data.frame(
     channel = c("ABC", "BBC", "CBC"),
@@ -263,12 +262,7 @@ test_that("write hyperlinks", {
     stringsAsFactors = FALSE
   )
   
-  channels$formula <- paste0('=HYPERLINK("',
-                             channels$homepage,
-                             '","',
-                             channels$channel,
-                             '")')
-  
+  channels$formula <- sprintf('=HYPERLINK("%s","%s")', channels$homepage, channels$channel)
   
   # create xlsx
   wb <- createWorkbook()
@@ -282,10 +276,8 @@ test_that("write hyperlinks", {
   # check the xls file for the correct string
   unzip(tmp, exdir = tmp_dir)
   sheet1 <- readLines(paste0(tmp_dir, "/xl/worksheets/sheet1.xml"), warn = FALSE)
-  res <- sapply(replaceIllegalCharacters(channels$formula),
-                FUN = function(str)grepl(str, x = sheet1, fixed = TRUE))
-  
-  
+  strs <- replaceIllegalCharacters(channels$formula)
+  res <- vapply(strs, grepl, NA, x = sheet1, fixed = TRUE)
   expect_true(all(res))
 })
 

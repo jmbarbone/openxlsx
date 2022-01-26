@@ -122,13 +122,13 @@ Workbook$methods(writeData = function(
       warn_formula()
     }
     
-    # TODO deprecate use of `formula`
-    frm <- c("formula", "workbookFormula")
+    # TODO deprecate formula
+    frm <- c("workbookFormula", "formula")
     cls <- "openxlsx_formula"
     
-    # TODO deprecate use of `array_formula`
     if ("array_formula" %in% allColClasses) {
-      frm <- c("array_formula", "workbookArrayFormula")
+      # TODO deprecate array_formual
+      frm <- c("workbookArrayFormula", "array_formula")
       cls <- "openxlsx_array_formula"
     }
     

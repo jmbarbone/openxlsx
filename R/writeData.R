@@ -240,7 +240,7 @@ writeData <- function(
 
   ## special case - formula
   # These need to be a specific formula class, not the base `formula`.
-  # TODO deprecate `formula`
+  # TODO deprecate formula
   if (inherits(x, c("workbookFormula", "formula")) & !is.call(x)) {
     if (inherits(x, "formula")) {
       warn_formula()
