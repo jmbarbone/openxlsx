@@ -63,7 +63,7 @@ writeFormula(wb, sheet = 1, x = v, startCol = 10, startRow = 2)
 writeFormula(wb, 1, x = "A2 + B2", startCol = 10, startRow = 10)
 
 
-## 2. - As a data.frame column with class "formula" using writeData
+## 2. - As a data.frame column with class "workbookFormula" using writeData
 
 df <- data.frame(
   x = 1:3,
@@ -73,8 +73,8 @@ df <- data.frame(
   stringsAsFactors = FALSE
 )
 
-class(df$z) <- c(class(df$z), "formula")
-class(df$z2) <- c(class(df$z2), "formula")
+class(df$z) <- c(class(df$z), "workbookFormula")
+class(df$z2) <- c(class(df$z2), "workbookFormula")
 
 addWorksheet(wb, "Sheet 2")
 writeData(wb, sheet = 2, x = df)
@@ -84,7 +84,7 @@ writeData(wb, sheet = 2, x = df)
 ## 3. - As a vector with class "formula" using writeData
 
 v2 <- c("SUM(A2:A4)", "AVERAGE(B2:B4)", "MEDIAN(C2:C4)")
-class(v2) <- c(class(v2), "formula")
+class(v2) <- c(class(v2), "workbookFormula")
 
 writeData(wb, sheet = 2, x = v2, startCol = 10, startRow = 2)
 

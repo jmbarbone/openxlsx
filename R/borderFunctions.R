@@ -11,7 +11,7 @@ genBaseColStyle <- function(cc) {
     colStyle$numFmt <- list(numFmtId = "164", "formatCode" = "&quot;$&quot;#,##0.00")
   } else if ("accounting" %in% cc) {
     colStyle$numFmt <- list(numFmtId = "44")
-  } else if ("hyperlink" %in% cc) {
+  } else if ("workbookHyperlink" %in% cc) {
     colStyle$fontColour <- list(theme = "10")
   } else if ("percentage" %in% cc) {
     colStyle$numFmt <- list(numFmtId = "10")

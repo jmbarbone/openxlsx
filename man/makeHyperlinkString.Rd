@@ -30,9 +30,11 @@ addWorksheet(wb, "Sheet 3")
 writeData(wb, sheet = 3, x = iris)
 
 ## External Hyperlink
-x <- c("https://www.google.com", "https://www.google.com.au")
-names(x) <- c("google", "google Aus")
-class(x) <- "hyperlink"
+x <- structure(
+  c("https://www.google.com", "https://www.google.com.au"),
+  class = "hyperlink",
+  names = c("google", "google Aus)
+)
 
 writeData(wb, sheet = 1, x = x, startCol = 10)
 

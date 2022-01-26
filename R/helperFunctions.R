@@ -22,9 +22,11 @@
 #' writeData(wb, sheet = 3, x = iris)
 #'
 #' ## External Hyperlink
-#' x <- c("https://www.google.com", "https://www.google.com.au")
-#' names(x) <- c("google", "google Aus")
-#' class(x) <- "hyperlink"
+#' x <- structure(
+#'   c("https://www.google.com", "https://www.google.com.au"),
+#'   class = "hyperlink",
+#'   names = c("google", "google Aus)
+#' )
 #'
 #' writeData(wb, sheet = 1, x = x, startCol = 10)
 #'
@@ -131,7 +133,7 @@ classStyles <- function(wb, sheet, startRow, startCol, colNames, nRow, colClasse
   newStylesElements <- NULL
   names(colClasses) <- NULL
   
-  if ("hyperlink" %in% allColClasses) {
+  if ("workbookHyperlink" %in% allColClasses) {
     
     ## style hyperlinks
     inds <- which(sapply(colClasses, function(x) "hyperlink" %in% x))

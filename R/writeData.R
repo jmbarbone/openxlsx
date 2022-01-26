@@ -503,7 +503,7 @@ writeData <- function(
 #' ## 3. - As a vector with class "formula" using writeData
 #'
 #' v2 <- c("SUM(A2:A4)", "AVERAGE(B2:B4)", "MEDIAN(C2:C4)")
-#' class(v2) <- c(class(v2), "formula")
+#' class(v2) <- c(class(v2), "workbookFormula")
 #'
 #' writeData(wb, sheet = 2, x = v2, startCol = 10, startRow = 2)
 #'
@@ -539,12 +539,10 @@ writeFormula <- function(
     stop("x must be a character vector.")
   }
 
-  dfx <- data.frame("X" = x, stringsAsFactors = FALSE)
-  class(dfx$X) <- c("character", ifelse(array, "workbookArrayFormula", "workbookFormula"))
-
-  if (any(grepl("^(=|)HYPERLINK\\(", x, ignore.case = TRUE))) {
-    class(dfx$X) <- c("character", "workbookFormula", "hyperlink")
-  }
+  dfx <- data.frame(
+    X = workbook_formula(x, array = array),
+    stringsAsFactors = FALSE
+  )
 
   writeData(
     wb       = wb,
