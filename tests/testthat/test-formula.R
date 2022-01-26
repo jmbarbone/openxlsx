@@ -5,7 +5,7 @@ test_that("workbook_formula() works", {
   expect_error(writeFormula(wb, 1, sprintf('"%s"&"%s"', TRUE, TRUE)), NA)
 })
 
-test_that("formula() warns appropriately", {
+test_that("formula class warns appropriately", {
   wb <- createWorkbook()
   addWorksheet(wb, 1)
   expect_warning(writeData(wb, 1, workbook_formula("=B1")), NA)
